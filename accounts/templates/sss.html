@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSS Contribution Checking</title>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+      background-attachment: fixed;
+    }
+
+    .table-container {
+      max-width: 100%;
+      overflow-x: auto;
+      margin-top: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      background-color: #fff;
+      padding: 20px;
+    }
+
+    .tg {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    .tg td, .tg th {
+      border: 1px solid #ddd;
+      padding: 12px 15px;
+      text-align: center;
+    }
+
+    .tg th {
+      background-color: #2196F3;
+      color: white;
+    }
+
+    .tg tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .tg tr:hover {
+      background-color: #e3f2fd;
+    }
+
+    .dropdown-container {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .dropdown-group {
+      flex: 1;
+    }
+
+    .dropdown-label {
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+      min-height: 40px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    #searchButton {
+      padding: 10px 20px;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #searchButton:hover {
+      background-color: #1976D2;
+    }
+
+    .match {
+      color: green;
+      font-weight: bold;
+    }
+
+    .unmatch {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="table-container">
+    <div class="dropdown-container">
+      <div class="dropdown-group">
+        <label for="companyDropdown" class="dropdown-label">Company</label>
+        <select id="companyDropdown">
+          <option value="">Select a company</option>
+        </select>
+      </div>
+      <div class="dropdown-group">
+        <label for="periodDropdown" class="dropdown-label">Payroll Period</label>
+        <select id="periodDropdown" multiple>
+          <option value="">Select payroll periods</option>
+        </select>
+      </div>
+      <button id="searchButton">Search</button>
+    </div>
+
+    <table class="tg">
+      <thead>
+        <tr>
+          <th>CHAPA No.</th>
+          <th>Gross Pay</th>
+          <th>System SSS Regular</th>
+          <th>System SSS Premium</th>
+          <th>Actual SSS Regular</th>
+          <th>Actual SSS Premium</th>
+          <th>Remarks Regular</th>
+          <th>Remarks Premium</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      const companyDropdown = $('#companyDropdown');
+      const periodDropdown = $('#periodDropdown');
+      const tableBody = $('#tableBody');
+
+      periodDropdown.select2({
+        placeholder: "Select payroll periods",
+        width: '100%'
+      });
+
+      const sssTable = [
+        { min: 0, max: 4249.99, regular: 180.00, premium: 40.00 },
+        { min: 4250.00, max: 4999.99, regular: 202.50, premium: 45.00 },
+        { min: 5000.00, max: 5749.99, regular: 225.00, premium: 50.00 },
+        { min: 29750.00, max: Infinity, regular: 800.00, premium: 200.00 },
+        // Add more brackets here based on the official SSS table
+      ];
+
+      // Fetch companies
+      fetch('https://delmontepayroll.com/citizendev/get-companies/')
+        .then(response => response.json())
+        .then(companies => {
+          companies.forEach(company => {
+            const option = new Option(company.name, company.id);
+            companyDropdown.append(option);
+          });
+        })
+        .catch(() => alert('Failed to fetch companies.'));
+
+      // Fetch payroll periods on company selection
+      companyDropdown.on('change', function () {
+        const companyId = this.value;
+        periodDropdown.empty();
+
+        if (!companyId) return;
+
+        fetch(`https://delmontepayroll.com/citizendev/get-payroll-periods/${companyId}/`)
+          .then(response => response.json())
+          .then(periods => {
+            periods.forEach(period => {
+              const option = new Option(period.name, period.id);
+              periodDropdown.append(option);
+            });
+          })
+          .catch(() => alert('Failed to fetch payroll periods.'));
+      });
+
+      // Fetch payroll records on Search button click
+      $('#searchButton').on('click', function () {
+        const companyId = companyDropdown.val();
+        const selectedPeriods = periodDropdown.val();
+
+        if (!companyId || !selectedPeriods.length) {
+          alert('Please select both a company and payroll periods.');
+          return;
+        }
+
+        const apiUrl = `https://delmontepayroll.com/citizendev/get-payroll-records/${companyId}/?ids=${selectedPeriods.join(',')}`;
+
+        fetch(apiUrl)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Error fetching records');
+            }
+            return response.json();
+          })
+          .then(records => {
+            console.log("Fetched Records:", records);
+            populateTable(records);
+          })
+          .catch(error => {
+            console.error('Failed to fetch payroll records:', error);
+            alert('Failed to fetch payroll records.');
+          });
+      });
+
+      // Calculate the SSS contributions
+      function calculateSSS(grossPay) {
+        const bracket = sssTable.find(b => grossPay >= b.min && grossPay <= b.max);
+        if (bracket) {
+          return {
+            SSSRegular: bracket.regular,
+            SSSPremium: bracket.premium,
+          };
+        }
+        return { SSSRegular: 0, SSSPremium: 0 }; // Default for undefined brackets
+      }
+
+      // Populate table with payroll data
+      function populateTable(data) {
+        tableBody.empty();
+
+        data.forEach(item => {
+          console.log('Item data:', item); // Log the item to inspect its structure
+
+          // Use employee_id for CHAPA No. and trim any whitespace
+          const chapaNo = (item.employee_id || 'N/A').trim(); // Directly use the CHAPA No. from the API
+          // Ensure gross_pay is a number
+          const grossPay = typeof item.gross_pay === 'number' ? item.gross_pay : parseFloat(item.gross_pay) || 0;
+
+          // Calculate System SSS values if they are missing
+          const SSSRegular = item.sss_regular || calculateSSS(grossPay).SSSRegular; // Use API value if available, else calculate
+          const SSSPremium = item.sss_premium || calculateSSS(grossPay).SSSPremium; // Use API value if available, else calculate
+
+          // Calculate Actual SSS contributions based on gross pay
+          const actualSSS = calculateSSS(grossPay);
+
+          const row = `
+            <tr>
+              <td>${chapaNo}</td> <!-- CHAPA No. from API -->
+              <td>${grossPay.toFixed(2)}</td> <!-- Gross Pay -->
+              <td>${SSSRegular.toFixed(2)}</td> <!-- SSS Regular -->
+              <td>${SSSPremium.toFixed(2)}</td> <!-- SSS Premium -->
+              <td>${actualSSS.SSSRegular.toFixed(2)}</td> <!-- Actual SSS Regular -->
+              <td>${actualSSS.SSSPremium.toFixed(2)}</td> <!-- Actual SSS Premium -->
+              <td class="${SSSRegular === actualSSS.SSSRegular ? 'match' : 'unmatch'}">
+                ${SSSRegular === actualSSS.SSSRegular ? 'Matched' : 'Unmatched'}
+              </td>
+              <td class="${SSSPremium === actualSSS.SSSPremium ? 'match' : 'unmatch'}">
+                ${SSSPremium === actualSSS.SSSPremium ? 'Matched' : 'Unmatched'}
+              </td>
+            </tr>
+          `;
+          tableBody.append(row);
+        });
+      }
+    });
+  </script>
+</body>
+</html>

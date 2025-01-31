@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIR Form 2307</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 20px;
+        }
+        .form-container {
+            width: 800px;
+            border: 1px solid black;
+            padding: 10px;
+            margin: auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 18px;
+            margin: 0;
+        }
+        .header h2 {
+            font-size: 16px;
+            margin: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 5px;
+            text-align: left;
+        }
+        input, select {
+            width: 95%;
+            padding: 3px;
+            box-sizing: border-box;
+        }
+        .section-title {
+            font-weight: bold;
+            background-color: #f2f2f2;
+            padding: 5px;
+        }
+        .signature-section {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-box {
+            width: 45%;
+            border: 1px solid black;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <form class="form-container" action="#" method="POST">
+        <!-- Header -->
+        <div class="header">
+            <h1>Republic of the Philippines</h1>
+            <h2>Department of Finance</h2>
+            <h2>Bureau of Internal Revenue</h2>
+            <h1>Certificate of Creditable Tax Withheld at Source</h1>
+            <p><strong>BIR Form No. 2307</strong></p>
+            <p>January 2018 (ENCS)</p>
+        </div>
+
+        <!-- Period Covered -->
+        <div>
+            <label>For the Period: 
+                <input type="date" name="period_from">
+            </label>
+            <label>To: 
+                <input type="date" name="period_to">
+            </label>
+        </div>
+
+        <!-- Part I: Payee Information -->
+        <div>
+            <p class="section-title">Part I - Payee Information</p>
+            <table>
+                <tr>
+                    <td>Taxpayer Identification Number (TIN)</td>
+                    <td><input type="text" name="payee_tin"></td>
+                </tr>
+                <tr>
+                    <td>Name of Payee</td>
+                    <td><input type="text" name="payee_name"></td>
+                </tr>
+                <tr>
+                    <td>Registered Address</td>
+                    <td><input type="text" name="payee_address"></td>
+                </tr>
+                <tr>
+                    <td>4A ZIP Code</td>
+                    <td><input type="text" name="payee_zip"></td>
+                </tr>
+                <tr>
+                    <td>Foreign Address (if applicable)</td>
+                    <td><input type="text" name="payee_foreign_address"></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Part II: Payer Information -->
+        <div>
+            <p class="section-title">Part II - Payer Information</p>
+            <table>
+                <tr>
+                    <td>Taxpayer Identification Number (TIN)</td>
+                    <td><input type="text" name="payer_tin"></td>
+                </tr>
+                <tr>
+                    <td>Name of Payer</td>
+                    <td><input type="text" name="payer_name"></td>
+                </tr>
+                <tr>
+                    <td>Registered Address</td>
+                    <td><input type="text" name="payer_address"></td>
+                </tr>
+                <tr>
+                    <td>8A ZIP Code</td>
+                    <td><input type="text" name="payer_zip"></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Part III: Details of Monthly Income Payments and Taxes Withheld -->
+        <div>
+            <p class="section-title">Part III - Details of Monthly Income Payments and Taxes Withheld</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Income Payments Subject to Expanded Withholding Tax</th>
+                        <th>ATC</th>
+                        <th>1st Month</th>
+                        <th>2nd Month</th>
+                        <th>3rd Month</th>
+                        <th>Total</th>
+                        <th>Tax Withheld</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" name="income_payment_1"></td>
+                        <td><input type="text" name="atc_1"></td>
+                        <td><input type="number" name="month1_1"></td>
+                        <td><input type="number" name="month2_1"></td>
+                        <td><input type="number" name="month3_1"></td>
+                        <td><input type="number" name="total_1"></td>
+                        <td><input type="number" name="tax_withheld_1"></td>
+                    </tr>
+                    <!-- Add more rows as needed -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Total Section -->
+        <div>
+            <table>
+                <tr>
+                    <td>Total</td>
+                    <td><input type="number" name="grand_total"></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Declaration -->
+        <div>
+            <p class="section-title">Declaration</p>
+            <p>
+                I/We declare under the penalties of perjury that this certificate has been made in good faith, verified by us, and to the best of our knowledge and belief, is true and correct pursuant to the provisions of the National Internal Revenue Code, as amended, and the regulations issued under authority thereof.
+            </p>
+        </div>
+
+        <!-- Signatures -->
+        <div class="signature-section">
+            <div class="signature-box">
+                <p>Tax Agent Accreditation No.</p>
+                <p>Signature over Printed Name of Taxpayer/Payer's Authorized Representative/Tax Agent</p>
+                <input type="text" name="tax_agent_name">
+                <p>Date Issued: <input type="date" name="date_issued"></p>
+            </div>
+            <div class="signature-box">
+                <p>CONFORME:</p>
+                <p>Signature over Printed Name of Payee</p>
+                <input type="text" name="payee_signature">
+                <p>Date Issued: <input type="date" name="date_issued_conforme"></p>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div style="text-align: center; margin-top: 20px;">
+            <button type="submit">Submit Form</button>
+        </div>
+    </form>
+</body>
+</html>

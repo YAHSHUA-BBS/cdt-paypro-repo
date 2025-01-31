@@ -1,0 +1,9 @@
+.tg td[contenteditable="true"] {
+    background-color: #f8f8f8;
+    cursor: text;
+}
+
+.tg td[contenteditable="true"]:focus {
+    outline: 2px solid #007bff;
+    background-color: #fff;
+}

@@ -1,0 +1,383 @@
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+</head>
+
+<style type="text/css">
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+        color: #333;
+    }
+
+    .table-container {
+        max-width: 100%;
+        overflow-x: auto;
+        margin-top: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        background-color: white;
+        padding: 20px;
+    }
+
+    .tg {
+        border-collapse: collapse;
+        border-spacing: 0;
+        width: 100%;
+        background-color: white;
+    }
+
+    .tg td, .tg th {
+        border: 1px solid #ddd;
+        padding: 12px 15px;
+        overflow: hidden;
+        word-break: normal;
+    }
+
+    .tg th {
+        font-weight: bold;
+        background-color: #4CAF50;
+        color: white;
+        text-align: left;
+        border-bottom: 2px solid #ddd;
+    }
+
+    .tg tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .tg tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .dropdown-container {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .dropdown-group {
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+    }
+
+    .dropdown-group:last-child {
+        margin-left: 10px;
+    }
+
+    .dropdown-label {
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    select {
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        height: auto;
+        min-height: 40px;
+        transition: border-color 0.3s;
+        background-color: white;
+    }
+
+    select:focus {
+        border-color: #4CAF50;
+        outline: none;
+    }
+
+    select[multiple] {
+        height: auto;
+        min-height: 80px;
+        overflow-y: auto;
+    }
+
+    .match {
+        color: green;
+        font-weight: bold;
+    }
+
+    .unmatched {
+        color: red;
+        font-weight: bold;
+    }
+
+    .search-button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s, transform 0.2s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .search-button:hover {
+        background-color: #45a049;
+        transform: scale(1.05);
+    }
+
+    @media screen and (max-width: 600px) {
+        .dropdown-container {
+            flex-direction: column;
+        }
+        
+        .tg {
+            font-size: 12px;
+        }
+        
+        .tg td, .tg th {
+            padding: 8px;
+        }
+    }
+
+    .filter-container {
+        margin-bottom: 20px;
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        display: none;
+    }
+
+    .loader {
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .selected-option {
+        background-color: #4CAF50;
+        color: white;
+    }
+</style>
+
+<div id="loadingOverlay" class="overlay">
+    <div class="loader"></div>
+</div>
+
+<div class="title">YAHSHUA Paypro Tax Checking</div>
+
+<div class="table-container">
+    <div class="dropdown-container">
+        <div class="dropdown-group">
+            <label for="companyDropdown" class="dropdown-label">Company</label>
+            <select class="dropdown" id="companyDropdown">
+                <option value="">Select a company</option>
+            </select>
+        </div>
+        <div class="dropdown-group">
+            <label for="periodDropdown" class="dropdown-label">Payroll Period</label>
+            <select class="dropdown" id="periodDropdown" multiple>
+                <option value="">Select payroll periods</option>
+            </select>
+        </div>
+        <div class="dropdown-group" style="margin-left: 10px;">
+            <button id="searchButton" class="search-button">Search</button>
+        </div>
+    </div>
+
+    <div class="filter-container">
+        <label for="filterDropdown" class="dropdown-label">Filter Results:</label>
+        <select id="filterDropdown" class="dropdown"> 
+            <option value="all">All</option>
+            <option value="matched">Matched</option>
+            <option value="unmatched">Unmatched</option>
+        </select>
+    </div>
+
+    <table class="tg">
+        <thead>
+            <tr>
+                <th>CHAPA No.</th>
+                <th>Gross Pay</th>
+                <th>System Amount</th>
+                <th>HDMF Amount</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const companyDropdown = document.getElementById('companyDropdown');
+    const periodDropdown = document.getElementById('periodDropdown');
+    const tableBody = document.getElementById('tableBody');
+    const filterDropdown = document.getElementById('filterDropdown');
+    const searchButton = document.getElementById('searchButton');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    // Fetch companies
+    fetch('https://delmontepayroll.com/citizendev/get-companies/')
+        .then(response => response.ok ? response.json() : Promise.reject('Error fetching companies'))
+        .then(companies => {
+            companies.forEach(company => {
+                const option = document.createElement('option');
+                option.value = company.id;
+                option.textContent = company.name;
+                companyDropdown.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching companies:', error);
+            companyDropdown.innerHTML = '<option value="">Error loading companies</option>';
+        });
+
+    // Fetch payroll periods when a company is selected
+    companyDropdown.addEventListener('change', function() {
+        const companyId = this.value;
+        if (!companyId) return;
+
+        fetch(`https://delmontepayroll.com/citizendev/get-payroll-periods/${companyId}/`)
+            .then(response => response.ok ? response.json() : Promise.reject('Error fetching periods'))
+            .then(periods => {
+                periodDropdown.innerHTML = '<option value="">Select a period</option>';
+                periods.forEach(period => {
+                    const option = document.createElement('option');
+                    option.value = period.id;
+                    option.textContent = period.name;
+                    periodDropdown.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching payroll periods:', error);
+                periodDropdown.innerHTML = '<option value="">Error loading periods</option>';
+            });
+    });
+
+    // Add change event listener to toggle selected options
+    periodDropdown.addEventListener('change', function() {
+        const selectedOptions = Array.from(this.selectedOptions);
+        const allOptions = Array.from(this.options);
+        
+        allOptions.forEach(option => {
+            option.classList.toggle('selected-option', option.selected);
+        });
+    });
+
+    // Add click event listener to the search button
+    searchButton.addEventListener('click', function() {
+        const companyId = companyDropdown.value;
+        const selectedPeriods = Array.from(periodDropdown.selectedOptions).map(option => option.value); // Get selected periods
+        if (!companyId || selectedPeriods.length === 0) { // Check if any period is selected
+            alert('Please select both a company and at least one payroll period.');
+            return;
+        }
+
+        // Show the loading overlay
+        loadingOverlay.style.display = 'flex';
+        // Clear the table body
+        tableBody.innerHTML = '';
+
+        // Fetch records for each selected period
+        Promise.all(selectedPeriods.map(periodId => 
+        fetch(`https://delmontepayroll.com/citizendev/get-payroll-records/${companyId}/?ids=${selectedPeriods.join(',')}`)
+                .then(response => response.ok ? response.json() : Promise.reject('Error fetching records'))
+        ))
+        .then(dataArrays => {
+            // Flatten the array of results
+            const allData = [].concat(...dataArrays);
+            populateTable(allData);
+            // Hide the loading overlay after populating the table
+            loadingOverlay.style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error fetching payroll records:', error);
+            tableBody.innerHTML = '<tr><td colspan="5">Error loading payroll records</td></tr>';
+            // Hide the loading overlay if there's an error
+            loadingOverlay.style.display = 'none';
+        });
+    });
+
+    filterDropdown.addEventListener('change', function() {
+        const filter = this.value;
+        const rows = tableBody.getElementsByTagName('tr');
+        for (let row of rows) {
+            const matchCell = row.querySelector('td:last-child');
+            if (filter === 'all' || 
+                (filter === 'matched' && matchCell.textContent === 'Matched') ||
+                (filter === 'unmatched' && matchCell.textContent === 'Unmatched')) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    });
+
+    function populateTable(data) {
+        tableBody.innerHTML = '';
+        
+        if (!Array.isArray(data) || data.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5">No payroll records available</td></tr>';
+            return;
+        }
+
+        data.forEach(item => {
+            const grossPay = parseFloat(item.gross_pay || 0);
+            const systemAmount = parseFloat(item.pagibig || 0);
+            const hdmfAmount = calculateHdmfAmount(grossPay);
+            const isMatch = Math.abs(systemAmount - hdmfAmount) < 0.01; 
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.employee_id || ''}</td>
+                <td>${grossPay.toFixed(2)}</td>
+                <td>${systemAmount.toFixed(2)}</td>
+                <td>${hdmfAmount.toFixed(2)}</td>
+                <td class="${isMatch ? 'match' : 'unmatched'}">${isMatch ? 'Matched' : 'Unmatched'}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        filterDropdown.dispatchEvent(new Event('change'));
+    }
+
+    function calculateHdmfAmount(grossPay) {
+        let hdmfAmount;
+        if (grossPay > 1500) {
+            hdmfAmount = grossPay * 0.02;
+        } else if (grossPay < 1500) {
+            hdmfAmount = grossPay * 0.01;
+        } else {
+            hdmfAmount = 0;
+        }
+        
+        // Cap the HDMF amount at 200
+        return Math.min(hdmfAmount, 200);
+    }
+
+    // Initialize Select2 for multi-select dropdown
+    $('#periodDropdown').select2({
+        placeholder: "Select payroll periods",
+        width: '100%'
+    });
+});
+</script>

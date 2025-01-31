@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSS and HDMF Contribution Checking</title>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+
+    .tab-container {
+      margin-bottom: 20px;
+      display: flex;
+      border-bottom: 2px solid #007BFF;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      cursor: pointer;
+      border: none;
+      background-color: #ffffff;
+      margin-right: 2px;
+      transition: background-color 0.3s, color 0.3s;
+      border-radius: 4px;
+    }
+
+    .tab.active {
+      background-color: #007BFF;
+      color: white;
+      border-bottom: 2px solid #0056b3;
+    }
+
+    .tab:hover {
+      background-color: #e7f1ff;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .table-container {
+      margin-top: 20px;
+      background: #ffffff;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f8f9fa;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="tab-container">
+    <button class="tab active" data-tab="sssTab">SSS Contribution Checking</button>
+    <button class="tab" data-tab="hdmfTab">HDMF Contribution Checking</button>
+    <button class="tab" data-tab="otherTab">Other Contributions</button>
+  </div>
+
+  <!-- SSS Contribution Checking Tab -->
+  <div id="sssTab" class="tab-content active">
+    <div class="table-container">
+      <h2>SSS Contribution Checking</h2>
+      <label for="sssPeriod">Select Period:</label>
+      <select id="sssPeriod" class="select2">
+        <!-- Dynamic options loaded here -->
+      </select>
+      <table>
+        <thead>
+          <tr>
+            <th>CHAPA No.</th>
+            <th>Gross Pay</th>
+            <th>System SSS Regular</th>
+            <th>System SSS Premium</th>
+            <th>Actual SSS Regular</th>
+            <th>Actual SSS Premium</th>
+            <th>Remarks Regular</th>
+            <th>Remarks Premium</th>
+          </tr>
+        </thead>
+        <tbody id="sssTableBody">
+          <!-- Dynamic rows for the SSS table -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- HDMF Contribution Checking Tab -->
+  <div id="hdmfTab" class="tab-content">
+    <div class="table-container">
+      <h2>HDMF Contribution Checking</h2>
+      <label for="hdmfPeriod">Select Period:</label>
+      <select id="hdmfPeriod" class="select2">
+        <!-- Dynamic options loaded here -->
+      </select>
+      <table>
+        <thead>
+          <tr>
+            <th>CHAPA No.</th>
+            <th>Gross Pay</th>
+            <th>System Amount</th>
+            <th>HDMF Amount</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody id="hdmfTableBody">
+          <!-- Dynamic rows for the HDMF table -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Other Contributions Tab -->
+  <div id="otherTab" class="tab-content">
+    <div class="table-container">
+      <h2>Other Contributions Checking</h2>
+      <label for="otherPeriod">Select Period:</label>
+      <select id="otherPeriod" class="select2">
+        <!-- Dynamic options loaded here -->
+      </select>
+      <table>
+        <thead>
+          <tr>
+            <th>CHAPA No.</th>
+            <th>Contribution Type</th>
+            <th>Amount</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody id="otherTableBody">
+          <!-- Dynamic rows for the Other Contributions table -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      // Initialize Select2
+      $('.select2').select2();
+
+      // Tab functionality
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', function () {
+          document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+          this.classList.add('active');
+          document.getElementById(this.dataset.tab).classList.add('active');
+        });
+      });
+
+      // Mock data fetching for select options (replace with API calls)
+      const sssPeriods = ['January 2025', 'February 2025', 'March 2025'];
+      const hdmfPeriods = ['Q1 2025', 'Q2 2025', 'Q3 2025'];
+
+      sssPeriods.forEach(period => {
+        $('#sssPeriod').append(new Option(period, period));
+      });
+
+      hdmfPeriods.forEach(period => {
+        $('#hdmfPeriod').append(new Option(period, period));
+      });
+    });
+  </script>
+</body>
+</html>
